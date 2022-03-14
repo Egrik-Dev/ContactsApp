@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contacts List</title>
+  <link rel="stylesheet" href="css/style.min.css">
+</head>
+<body>
+  <header class="page-header">
+    <a href="/" class="page-header__logo">Contacts App</a>
+    <nav class="main-nav">
+      <ul class="main-nav__list">
+        <li class="main-nav__item">
+          <img class="main-nav__img" src="./img/avatar.svg" alt="Avatar">
+          <button class="main-nav__btn" type="button" name="logout">Logout</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main class="page-main">
+    <h1 class="page-main__title title">Contacts list</h1>
+    <section class="page-main__contacts contacts">
+      <div class="contacts__search-user">
+        <label class="visually-hidden" for="search-field"></label>
+        <input class="contacts__search-input" type="search" name="search" id="search-field" placeholder="Search">
+      </div>
+      <table class="contacts__table">
+        <tr class="contacts__table-row contacts__table-row--titles">
+          <th class="contacts__table-title">Name</th>
+          <th class="contacts__table-title">Phone</th>
+          <th class="contacts__table-title">Action buttons</th>
+        </tr>
+        <tr class="contacts__table-row">
+          <td class="contacts__table-definition">Helen Pierce</td>
+          <td class="contacts__table-definition contacts__table-definition--phone">+79161231234</td>
+          <td class="contacts__table-actions">
+            <button class="contacts__table-btn contacts__table-btn--edit" type="button">Edit</button>
+            <button class="contacts__table-btn contacts__table-btn--delete" type="button">Delete</button>
+          </td>
+        </tr>
+        <tr class="contacts__table-row">
+          <td class="contacts__table-definition">Wendy Byrde</td>
+          <td class="contacts__table-definition contacts__table-definition--phone">+79164332533</td>
+          <td class="contacts__table-actions">
+            <button class="contacts__table-btn contacts__table-btn--edit" type="button">Edit</button>
+            <button class="contacts__table-btn contacts__table-btn--delete" type="button">Delete</button>
+          </td>
+        </tr>
+        <tr class="contacts__table-row">
+          <td class="contacts__table-definition">Marty Byrde</td>
+          <td class="contacts__table-definition contacts__table-definition--phone">+79161231234</td>
+          <td class="contacts__table-actions">
+            <button class="contacts__table-btn contacts__table-btn--edit" type="button">Edit</button>
+            <button class="contacts__table-btn contacts__table-btn--delete" type="button">Delete</button>
+          </td>
+        </tr>
+        <tr class="contacts__table-row">
+          <td class="contacts__table-definition">
+            <label class="visually-hidden" for="name-field"></label>
+            <input type="text" class="contacts__table-input contacts__table-input--name" value="Peter"
+              placeholder="Name">
+          </td>
+          <td class="contacts__table-definition">
+            <label class="visually-hidden" for="phone-field"></label>
+            <input type="text" class="contacts__table-input contacts__table-input--phone" value="+79161231234"
+              placeholder="Phone">
+          </td>
+          <td class="contacts__table-edit">
+            <button class="contacts__table-btn contacts__table-btn--save" type="button">Save</button>
+          </td>
+        </tr>
+      </table>
+      <form class="contacts__form" action="/add-person" method="post">
+        <h2 class="contacts__subtitle">Add new user</h2>
+        <label class="visually-hidden" for="name-field">Name</label>
+        <input class="contacts__input-text" type="text" name="name" id="name-field" placeholder="Name">
+        <label class="visually-hidden" for="email-field">E-mail</label>
+        <input class="contacts__input-text" type="text" name="email" id="email-field" placeholder="E-mail">
+        <button class="contacts__add-btn">Add contact</button>
+      </form>
+    </section>
+  </main>
+  <footer class="page-footer">
+  </footer>
+  <!-- <script type="module" src="js/utils.js"></script> -->
+</body>

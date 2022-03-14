@@ -1,0 +1,20 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server side",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node Backend/server.js"
+  },
+  "author": "Egor Sorochinskiy",
+  "license": "ISC",
+  "devDependencies": {
+    "body-parser": "^1.19.2",
+    "json-server": "^0.17.0",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}

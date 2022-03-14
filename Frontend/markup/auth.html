@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contacts App</title>
+  <link rel="stylesheet" href="css/style.min.css">
+</head>
+<body>
+  <header class="page-header">
+    <a href="/" class="page-header__logo">Contacts App</a>
+  </header>
+  <main class="page-main">
+    <h1 class="page-main__title title">Sign in</h1>
+    <section class="page-main__sign-in sign-in">
+      <div class="sign-in__block">
+        <form class="sign-in__form" action="/sign-in" method="post">
+          <div class="sign-in__input-block">
+            <label class="visually-hidden" for="email-field">E-mail</label>
+            <input class="sign-in__input" name="email" id="email-field" type="email" placeholder="E-mail"
+              required></input>
+          </div>
+          <div class="sign-in__input-block">
+            <label class="visually-hidden" for="password-field">Password</label>
+            <input class="sign-in__input" name="password" id="password-field" type="password" placeholder="Password"
+              required></input>
+          </div>
+          <button class="sign-in__btn" type="submit">Login</button>
+          <button class="sign-in__btn" type="submit">Register</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="page-footer">
+  </footer>
+</body>
