@@ -3,24 +3,58 @@ import Header from "../header/header";
 import { Navigate } from "react-router-dom";
 import { useActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { FormName } from "../../const";
 
 const Auth = (): JSX.Element => {
   const { isAuth, errorMessage } = useTypedSelector((state) => state);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const { authAction, changeAuthStatus } = useActions();
+  const [form, setForm] = useState<string>("login");
+  const { authAction, changeAuthStatus, setUser } = useActions();
 
   const isLoginTrue = JSON.parse(localStorage.getItem("login") || "{}");
 
   React.useEffect((): void => {
     if (isLoginTrue && isLoginTrue.userLogin) {
       changeAuthStatus(true);
+      setUser(isLoginTrue.user);
     }
   }, []);
 
   const onLoginClick = (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    authAction(email, password);
+    let requestName;
+
+    switch (form) {
+      case FormName.LOGIN:
+        requestName = "/login";
+        break;
+      case FormName.RESISTER:
+        requestName = "/create-user";
+        break;
+    }
+
+    if (requestName) {
+      authAction(email, password, requestName);
+    }
+  };
+
+  const onChangeFormClick = (
+    evt: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ): void => {
+    const nameForm = evt.currentTarget.name;
+    let changeFormName = "";
+
+    switch (nameForm) {
+      case FormName.LOGIN:
+        changeFormName = "register";
+        break;
+      case FormName.RESISTER:
+        changeFormName = "login";
+        break;
+    }
+
+    setForm(changeFormName);
   };
 
   if (isAuth) {
@@ -58,6 +92,7 @@ const Auth = (): JSX.Element => {
                   type="email"
                   placeholder="E-mail"
                   required
+                  autoComplete="off"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 ></input>
@@ -73,15 +108,20 @@ const Auth = (): JSX.Element => {
                   type="password"
                   placeholder="Password"
                   required
+                  autoComplete="off"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 ></input>
               </div>
               <button className="sign-in__btn" type="submit">
-                Login
+                {form === FormName.LOGIN ? "Login" : "Register"}
               </button>
-              <button className="sign-in__btn" type="submit">
-                Register
+              <button
+                className="sign-in__btn-another-action"
+                name={form === FormName.LOGIN ? "login" : "register"}
+                onClick={(evt) => onChangeFormClick(evt)}
+              >
+                Or {form === FormName.LOGIN ? "Register" : "Login"}
               </button>
             </form>
           </div>

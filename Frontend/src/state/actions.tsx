@@ -1,5 +1,10 @@
-import { Contacts } from "../types";
+import { Contacts, User } from "../types";
 import { ActionTypes } from "./action-types";
+
+type SetUser = {
+  type: ActionTypes.SET_USER;
+  payload: User;
+};
 
 type ChangeAuthStaus = {
   type: ActionTypes.CHANGE_AUTH_STATUS;
@@ -25,4 +30,5 @@ export type Action =
   | ChangeAuthStaus
   | SetErrorMessage
   | SetContacts
-  | FilterContacts;
+  | FilterContacts
+  | SetUser;

@@ -1,8 +1,9 @@
 import { Action } from "./actions";
 import { ActionTypes } from "./action-types";
-import { Contacts } from "../types/index";
+import { Contacts, User } from "../types/index";
 
 interface userState {
+  user: User;
   isAuth: boolean;
   errorMessage: string;
   contacts: Contacts[];
@@ -10,6 +11,7 @@ interface userState {
 }
 
 const initialState = {
+  user: { email: "", id: -1 },
   isAuth: false,
   errorMessage: "",
   contacts: [],
@@ -29,6 +31,8 @@ export const reducer = (
       return Object.assign({}, state, { contacts: action.payload });
     case ActionTypes.FILTER_CONTACTS:
       return Object.assign({}, state, { searchedContacts: action.payload });
+    case ActionTypes.SET_USER:
+      return Object.assign({}, state, { user: action.payload });
     default:
       return state;
   }

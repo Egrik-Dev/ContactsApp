@@ -19,114 +19,192 @@ function createToken(payload) {
   return jwt.sign(payload, SECRET_KEY, { expiresIn });
 }
 
-exports.postLoginUser = (req, res, next) => {
-  const { email, password } = req.body;
+function getUserIndex(users, userId) {
+  return users.findIndex((user) => user.id === Number(userId));
+}
 
-  if (!isAuth({ email, password })) {
+function giveUserNotFoundMsg(res) {
+  const status = 401;
+  const message = "User not found";
+  return res.status(status).json({ status, message });
+}
+
+exports.postCreateUser = (req, res, next) => {
+  const { email, password } = req.body;
+  let id;
+
+  if (isAuth({ email, password })) {
     const status = 401;
-    const message = "Incorrect login or password";
+    const message = "This login already exists";
     res.status(status).json({ status, message });
     return;
   }
 
-  const accessToken = createToken({ email, password });
-  res.status(200).json({ accessToken });
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      data = JSON.parse(data.toString());
+      id = data.users[data.users.length - 1]?.id + 1 || 1;
+      data.users.push({ id, email, password, contacts: [] });
+
+      return fs.promises.writeFile("./users.json", JSON.stringify(data));
+    })
+    .then(() => {
+      const accessToken = createToken({ email, password, id });
+      res.status(200).json({ accessToken, user: { email, id } });
+    })
+    .catch((err) => {
+      const status = err.status;
+      const message = err;
+      res.status(status).json({ status, message });
+      return;
+    });
+};
+
+exports.postLoginUser = (req, res, next) => {
+  const { email, password } = req.body;
+
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      if (!isAuth({ email, password })) {
+        const status = 401;
+        const message = "Incorrect login or password";
+        res.status(status).json({ status, message });
+        return;
+      }
+
+      data = JSON.parse(data.toString());
+
+      const userId = data.users.find(
+        (user) => user.email === email && user.password === password
+      ).id;
+
+      const accessToken = createToken({ email, password, id: userId });
+      res.status(200).json({ accessToken, user: { email, id: userId } });
+    })
+    .catch((err) => {
+      const status = err.status;
+      const message = err;
+      res.status(status).json({ status, message });
+      return;
+    });
 };
 
 exports.postAddContact = (req, res, next) => {
-  const { name, phone } = req.body;
+  const { name, phone, userId } = req.body;
+  let userContacts;
 
-  fs.readFile("./contacts.json", (err, data) => {
-    if (err) {
-      const status = err.status;
-      const message = err;
-      res.status(status).json({ status, message });
-      return;
-    }
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      data = JSON.parse(data.toString());
 
-    data = JSON.parse(data.toString());
+      const userIndex = getUserIndex(data.users, userId);
 
-    const lastId = data.contacts[data.contacts.length - 1].id || 1;
-    data.contacts.push({ name, phone, id: lastId + 1 });
-
-    fs.writeFile("./contacts.json", JSON.stringify(data), (err) => {
-      if (err) {
-        const status = err.status;
-        const message = err;
+      if (userIndex === -1) {
+        const status = 401;
+        const message = "User not found";
         res.status(status).json({ status, message });
         return;
       }
 
-      this.getContacts(req, res, next);
+      userContacts = data.users[userIndex].contacts;
+      let lastContactsId = userContacts[userContacts.length - 1]?.id || 0;
+      userContacts.push({ name, phone, id: lastContactsId + 1 });
+      data.users[userIndex].contacts = userContacts;
+
+      return fs.promises.writeFile("./users.json", JSON.stringify(data));
+    })
+    .then(() => {
+      res.status(200).json(userContacts);
+    })
+    .catch((err) => {
+      const status = err.status;
+      const message = err;
+      res.status(status).json({ status, message });
+      return;
     });
-  });
 };
 
 exports.getContacts = (req, res, next) => {
-  const contactsDb = JSON.parse(fs.readFileSync("./contacts.json", "utf-8"));
-  res.status(200).json(contactsDb.contacts);
+  const userId = req.params.userId;
+
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      data = JSON.parse(data.toString());
+
+      const userIndex = getUserIndex(data.users, userId);
+
+      if (userIndex === -1) return giveUserNotFoundMsg();
+
+      const userContacts = data.users[userIndex].contacts;
+      res.status(200).json(userContacts);
+    })
+    .catch((err) => {
+      const status = err.status;
+      const message = err;
+      res.status(status).json({ status, message });
+      return;
+    });
 };
 
 exports.deleteContact = (req, res, next) => {
-  const { id } = req.body;
+  const { contactId, userId } = req.body;
+  let userContacts;
 
-  fs.readFile("./contacts.json", (err, data) => {
-    if (err) {
-      const status = err.status;
-      const message = err;
-      res.status(status).json({ status, message });
-      return;
-    }
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      data = JSON.parse(data.toString());
 
-    data = JSON.parse(data.toString());
-    data.contacts = data.contacts.filter((contact) => contact.id !== id);
+      const userIndex = getUserIndex(data.users, userId);
 
-    fs.writeFile("./contacts.json", JSON.stringify(data), (err) => {
-      if (err) {
-        const status = err.status;
-        const message = err;
-        res.status(status).json({ status, message });
-        return;
-      }
+      if (userIndex === -1) return giveUserNotFoundMsg();
 
-      this.getContacts(req, res, next);
+      userContacts = data.users[userIndex].contacts;
+      userContacts = userContacts.filter((contact) => contact.id !== contactId);
+      data.users[userIndex].contacts = userContacts;
+
+      return fs.promises.writeFile("./users.json", JSON.stringify(data));
+    })
+    .then(() => {
+      res.status(200).json(userContacts);
     });
-  });
 };
 
 exports.editContact = (req, res, next) => {
-  const { contact, id } = req.body;
-  console.log(contact);
-  console.log(id);
+  const { contact, contactId, userId } = req.body;
+  let userContacts;
 
-  fs.readFile("./contacts.json", (err, data) => {
-    if (err) {
+  fs.promises
+    .readFile("./users.json", "utf-8")
+    .then((data) => {
+      data = JSON.parse(data.toString());
+
+      const userIndex = getUserIndex(data.users, userId);
+
+      if (userIndex === -1) return giveUserNotFoundMsg();
+
+      userContacts = data.users[userIndex].contacts;
+
+      const indexEditedContact = userContacts.findIndex(
+        (item) => item.id === Number(contactId)
+      );
+
+      userContacts[indexEditedContact] = contact;
+      data.users[userIndex].contacts = userContacts;
+
+      return fs.promises.writeFile("./users.json", JSON.stringify(data));
+    })
+    .then(() => {
+      res.status(200).json(userContacts);
+    })
+    .catch((err) => {
       const status = err.status;
       const message = err;
       res.status(status).json({ status, message });
       return;
-    }
-
-    data = JSON.parse(data.toString());
-    const indexEditedContact = data.contacts.findIndex(
-      (item) => item.id === id
-    );
-
-    data.contacts[indexEditedContact] = contact;
-
-    let writeData = fs.writeFile(
-      "./contacts.json",
-      JSON.stringify(data),
-      (err) => {
-        if (err) {
-          const status = err.status;
-          const message = err;
-          res.status(status).json({ status, message });
-          return;
-        }
-
-        this.getContacts(req, res, next);
-      }
-    );
-  });
+    });
 };

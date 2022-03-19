@@ -3,3 +3,8 @@ export interface Contacts {
   phone: string;
   id: number;
 }
+
+export interface User {
+  email: string;
+  id: number;
+}

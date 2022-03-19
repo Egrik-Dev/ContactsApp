@@ -3,4 +3,5 @@ export enum ActionTypes {
   SET_ERROR_MESSAGE = `set_error_message`,
   SET_CONTACTS = `set_contacts`,
   FILTER_CONTACTS = `filter_contacts`,
+  SET_USER = `set_user`,
 }

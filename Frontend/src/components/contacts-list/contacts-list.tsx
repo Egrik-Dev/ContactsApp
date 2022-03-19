@@ -17,7 +17,7 @@ type DispatchProps = {
 
 const ContactsList = (): JSX.Element => {
   const [search, setSearch] = useState<string>("");
-  const { isAuth, contacts, searchedContacts } = useTypedSelector(
+  const { isAuth, contacts, searchedContacts, user } = useTypedSelector(
     (state) => state
   );
   const {
@@ -29,7 +29,7 @@ const ContactsList = (): JSX.Element => {
   }: DispatchProps = useActions();
 
   React.useEffect((): void => {
-    fetchContacts();
+    if (user.id !== -1) fetchContacts(user.id);
   }, []);
 
   const onAddContactClick = React.useCallback(
@@ -39,19 +39,19 @@ const ContactsList = (): JSX.Element => {
       phone: string
     ): void => {
       evt.preventDefault();
-      addNewContact(name, phone);
+      addNewContact(name, phone, user.id);
     },
     []
   );
 
-  const onDeleteButtonClick = React.useCallback((id: number): void => {
-    deleteContact(id);
+  const onDeleteButtonClick = React.useCallback((contactId: number): void => {
+    deleteContact(contactId, user.id);
     setSearch("");
   }, []);
 
   const onEditContactClick = React.useCallback(
     (editedContact: Contacts): void => {
-      editContact(editedContact, editedContact.id);
+      editContact(editedContact, editedContact.id, user.id);
       setSearch("");
     },
     []
@@ -94,23 +94,32 @@ const ContactsList = (): JSX.Element => {
               onChange={(evt) => onChangeTypeSearch(evt)}
             />
           </div>
-          <table className="contacts__table">
-            <tbody>
-              <tr className="contacts__table-row contacts__table-row--titles">
-                <th className="contacts__table-title">Name</th>
-                <th className="contacts__table-title">Phone</th>
-                <th className="contacts__table-title">Action buttons</th>
-              </tr>
-              {searchedContacts.map((contact: Contacts) => (
-                <Contact
-                  key={contact.id}
-                  contact={contact}
-                  onDeleteButtonClick={onDeleteButtonClick}
-                  onEditContactClick={onEditContactClick}
-                />
-              ))}
-            </tbody>
-          </table>
+          {contacts.length !== 0 ? (
+            <table className="contacts__table">
+              <tbody>
+                <tr className="contacts__table-row contacts__table-row--titles">
+                  <th className="contacts__table-title">Name</th>
+                  <th className="contacts__table-title">Phone</th>
+                  <th className="contacts__table-title">Action buttons</th>
+                </tr>
+                {searchedContacts.map((contact: Contacts) => (
+                  <Contact
+                    key={contact.id}
+                    contact={contact}
+                    onDeleteButtonClick={onDeleteButtonClick}
+                    onEditContactClick={onEditContactClick}
+                  />
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="contacts__empty-list-block">
+              <h2 className="contacts__empty-list-message">
+                You don't have any contacts yet. Please add the first one to get
+                started
+              </h2>
+            </div>
+          )}
           <NewContact onAddContactClick={onAddContactClick} />
         </section>
       </main>
